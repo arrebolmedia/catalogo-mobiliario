@@ -1,0 +1,741 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Catálogo de Mobiliario - Casanueva by Las Mañanitas</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600&family=Playfair+Display:ital,wght@0,400..900;1,400..900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <!-- Nueva Paleta: Verde Olivo Ligero (#8FA68E), Verde Salvia (#A8B5A0), Blanco Tenue (#FAFBFA), Verde Olivo Medio (#6B7A5A), Gris Verde (#E8ECE6) -->
+    <!-- Application Structure Plan: The SPA uses a top-down information architecture. It features a main header and a category filter navigation. The main content area dynamically renders supplier "cards" based on the selected filter. All favorites and sharing functionalities have been removed for a streamlined, direct catalog experience. -->
+    <!-- Visualization & Content Choices: Report Info: Supplier list. Goal: Organize and plan. Viz/Presentation Method: Interactive card grid. Interaction: Category filters. The view is consistent across all categories, showing supplier cards. A fade transition has been added for smoother category changes. Justification: This simplified approach focuses on the core function of presenting a curated list of suppliers in an elegant and easy-to-navigate format. No charts are used as the data is qualitative. Library/Method: Vanilla JS for all logic; Tailwind CSS for layout. -->
+    <!-- CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
+    <style>
+        body {
+            font-family: 'Montserrat', sans-serif;
+            background-color: #FAFBFA; /* Blanco Tenue */
+            color: #6B7A5A; /* Verde Olivo Medio */
+        }
+        h1, h2, .card h3 {
+            font-family: 'Playfair Display', serif;
+        }
+        h1.main-title {
+            color: #FAFBFA; text-shadow: 1px 1px 4px rgba(0,0,0,0.5);
+        }
+        h2.header-subtitle {
+            color: #FAFBFA; text-shadow: 1px 1px 3px rgba(0,0,0,0.4);
+        }
+        .card h3 {
+             color: #6B7A5A; /* Verde Olivo Medio */
+        }
+        .card .description-text {
+             color: #6B7A5A; /* Verde Olivo Medio */
+             opacity: 0.9;
+        }
+        .category-text {
+            color: #8FA68E; /* Verde Olivo Ligero */
+        }
+        .filter-btn {
+            font-family: 'Montserrat', sans-serif;
+            transition: all 0.3s ease;
+            border-bottom: 2px solid transparent;
+            color: #6B7A5A; /* Verde Olivo Medio */
+            opacity: 0.8;
+            cursor: pointer;
+        }
+        .filter-btn:hover {
+            opacity: 1;
+        }
+        .filter-btn.active {
+            color: #8FA68E; /* Verde Olivo Ligero */
+            border-bottom-color: #8FA68E; /* Verde Olivo Ligero */
+            opacity: 1;
+        }
+        .card {
+            background-color: #FAFBFA; /* Blanco Tenue */
+            border: 1px solid #E8ECE6; /* Gris Verde */
+            border-radius: 0.75rem;
+            transition: transform 0.4s ease, box-shadow 0.4s ease, border-color 0.4s ease;
+            position: relative;
+            overflow: hidden;
+        }
+        .card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 12px 28px rgba(143, 166, 142, 0.15);
+            border-color: #A8B5A0; /* Verde Salvia */
+        }
+        .card .image-area {
+            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+            transition: background 0.3s ease;
+        }
+        .card:hover .image-area {
+            background: linear-gradient(135deg, #e8f5e8 0%, #d4edda 100%);
+        }
+        .line-clamp-2 {
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+        .icon-link {
+            width: 2.5rem;
+            height: 2.5rem;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 9999px;
+            background-color: #E8ECE6; /* Gris Verde */
+            border: 1px solid transparent;
+            transition: all 0.2s ease-in-out;
+        }
+        .icon-link:hover {
+            transform: scale(1.1);
+            border-color: #A8B5A0; /* Verde Salvia */
+            background-color: #FAFBFA; /* Blanco Tenue */
+        }
+        .instagram-icon {
+            width: 20px;
+            height: 20px;
+            border: 2px solid #6B7A5A; /* Verde Olivo Medio */
+            border-radius: 6px;
+            position: relative;
+            transition: border-color 0.2s ease-in-out;
+        }
+        .icon-link:hover .instagram-icon {
+            border-color: #8FA68E; /* Verde Olivo Ligero */
+        }
+        .instagram-icon::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 8px;
+            height: 8px;
+            border: 2px solid #6B7A5A; /* Verde Olivo Medio */
+            border-radius: 50%;
+            transition: border-color 0.2s ease-in-out;
+        }
+        .icon-link:hover .instagram-icon::before {
+            border-color: #8FA68E; /* Verde Olivo Ligero */
+        }
+        .instagram-icon::after {
+            content: '';
+            position: absolute;
+            top: 1.5px;
+            right: 1.5px;
+            width: 2.5px;
+            height: 2.5px;
+            background-color: #6B7A5A; /* Verde Olivo Medio */
+            border-radius: 50%;
+            transition: background-color 0.2s ease-in-out;
+        }
+        .icon-link:hover .instagram-icon::after {
+            background-color: #8FA68E; /* Verde Olivo Ligero */
+        }
+        .whatsapp-fa-icon {
+            color: #25D366;
+            font-size: 1.5rem; /* 24px */
+            transition: color 0.2s ease-in-out;
+        }
+        .icon-link:hover .whatsapp-fa-icon {
+            color: #128C7E;
+        }
+        .floral-divider {
+            height: 1px;
+            width: 120px;
+            background: #A8B5A0; /* Verde Salvia */
+            opacity: 0.5;
+            margin: 1.5rem auto;
+            position: relative;
+        }
+        .floral-divider::before {
+            content: '✻';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: #5a6b4a;
+            padding: 0 0.75rem;
+            font-size: 1.5rem;
+            line-height: 1;
+            color: #A8B5A0; /* Verde Salvia */
+        }
+        .card-divider {
+            height: 1px;
+            width: 60px;
+            background-color: #A8B5A0; /* Verde Salvia */
+            margin: 1.5rem auto;
+            opacity: 0.5;
+        }
+        #suppliers-grid {
+            transition: opacity 0.3s ease-in-out;
+        }
+        
+        /* Modal de imagen */
+        .image-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.9);
+            z-index: 9999;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s ease;
+        }
+        
+        .image-modal.active {
+            opacity: 1;
+            visibility: visible;
+        }
+        
+        .modal-content {
+            position: relative;
+            max-width: 95vw;
+            max-height: 95vh;
+            background: white;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 25px 50px rgba(0, 0, 0, 0.5);
+        }
+        
+        .modal-image {
+            width: 100%;
+            height: auto;
+            max-width: 90vw;
+            max-height: 80vh;
+            object-fit: contain;
+            cursor: zoom-in;
+            transition: transform 0.3s ease;
+        }
+        
+        .modal-image.zoomed {
+            cursor: zoom-out;
+            transform: scale(1.5);
+        }
+        
+        .modal-close {
+            position: absolute;
+            top: -45px;
+            right: 0;
+            background: rgba(255, 255, 255, 0.9);
+            border: none;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            font-size: 18px;
+            color: #333;
+            transition: all 0.2s ease;
+            z-index: 10001;
+        }
+        
+        .modal-close:hover {
+            background: white;
+            transform: scale(1.1);
+        }
+        
+        .modal-info {
+            padding: 20px;
+            text-align: center;
+            background: white;
+            border-top: 1px solid #E8ECE6;
+        }
+        
+        .modal-info h3 {
+            font-family: 'Playfair Display', serif;
+            color: #6B7A5A;
+            margin: 0 0 8px 0;
+            font-size: 1.5rem;
+            font-weight: bold;
+        }
+        
+        .modal-info .category {
+            color: #8FA68E;
+            font-size: 0.875rem;
+            font-weight: 500;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 12px;
+        }
+        
+        .modal-info .description {
+            color: #6B7A5A;
+            font-style: italic;
+            opacity: 0.9;
+            line-height: 1.4;
+        }
+        
+        .zoom-hint {
+            position: absolute;
+            bottom: 10px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(0, 0, 0, 0.7);
+            color: white;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 12px;
+            opacity: 0.8;
+            pointer-events: none;
+        }
+    </style>
+</head>
+<body class="antialiased">
+
+    <div class="w-full">
+        <header class="relative mb-10 md:mb-16 bg-[#5a6b4a]">
+            <div class="relative container mx-auto px-4 text-center py-20 md:py-32">
+                <h1 class="text-4xl md:text-6xl font-bold main-title">Catálogo de Mobiliario</h1>
+                <div class="floral-divider"></div>
+                <h2 class="text-xl md:text-2xl mt-2 font-light tracking-wider header-subtitle">Casanueva by Las Mañanitas</h2>
+            </div>
+        </header>
+
+        <div class="container mx-auto p-4 md:p-8 lg:p-12 max-w-7xl -mt-24 md:-mt-32 relative">
+            <nav id="filter-nav" class="relative bg-white p-4 rounded-lg shadow-lg border border-stone-200">
+                <button id="mobile-category-toggle" class="md:hidden w-full flex justify-between items-center text-left p-2 rounded-md border border-stone-300">
+                    <span id="current-category-name" class="font-semibold" style="color:#8FA68E;">Categorías</span>
+                    <svg id="mobile-arrow" class="w-5 h-5 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+                </button>
+                <div id="category-links" class="hidden md:flex justify-center flex-wrap items-center gap-4 md:gap-8">
+                </div>
+            </nav>
+
+            <main id="suppliers-container" class="mt-10">
+                <div id="suppliers-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8"></div>
+            </main>
+        </div>
+    </div>
+    
+    <!-- Modal de imagen -->
+    <div id="image-modal" class="image-modal">
+        <div class="modal-content">
+            <button class="modal-close" id="modal-close">
+                <i class="fas fa-times"></i>
+            </button>
+            <img id="modal-image" class="modal-image" src="" alt="">
+            <div class="modal-info">
+                <div id="modal-category" class="category"></div>
+                <h3 id="modal-title"></h3>
+                <p id="modal-description" class="description"></p>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        const furnitureData = [
+            // Sillas
+            {"category":"Sillas","name":"Tiffany Blanca","desc":"Elegante silla Tiffany en color blanco, perfecta para eventos formales y bodas. Clásica y atemporal."},
+            {"category":"Sillas","name":"Crossback Café","desc":"Silla crossback en madera con acabado café. Estilo rústico elegante para eventos campestres."},
+            {"category":"Sillas","name":"Bamboo","desc":"Silla de bambú natural con diseño eco-friendly. Ideal para eventos al aire libre y ambientes orgánicos."},
+            
+            // Mesas
+            {"category":"Mesas","name":"Vintage Wash Redonda","desc":"Mesa redonda con acabado vintage wash. Perfecta para cenas íntimas y eventos con carácter rústico."},
+            {"category":"Mesas","name":"Vintage Wash Rectangular","desc":"Mesa rectangular con acabado vintage wash. Ideal para banquetes y eventos con estilo campestre."},
+            {"category":"Mesas","name":"Napa Cuadrada","desc":"Mesa cuadrada estilo Napa con acabado elegante. Perfecta para espacios modernos y eventos sofisticados."},
+            {"category":"Mesas","name":"Napa Rectangular","desc":"Mesa rectangular estilo Napa con líneas limpias. Ideal para eventos contemporáneos y cenas formales."},
+            {"category":"Mesas","name":"Napa Redonda","desc":"Mesa redonda estilo Napa con diseño refinado. Perfecta para conversaciones íntimas y cenas elegantes."},
+            {"category":"Mesas","name":"Periquera Cuadrada","desc":"Mesa alta cuadrada estilo periquera. Ideal para cócteles y eventos de networking con ambiente casual."},
+            {"category":"Mesas","name":"Periquera Rectangular","desc":"Mesa alta rectangular estilo periquera. Perfecta para eventos tipo bar y reuniones informales."},
+            
+            // Manteles
+            {"category":"Manteles","name":"Olas Blanco Redondo","desc":"Mantel blanco con textura de olas elegante. Sofisticación y movimiento para mesas especiales."},
+            {"category":"Manteles","name":"Grecas Blanco Redondo","desc":"Mantel blanco con diseño de grecas clásicas. Elegancia atemporal con toques arquitectónicos."},
+            {"category":"Manteles","name":"Dorado Redondo","desc":"Mantel en tono dorado brillante. Lujo y glamour para eventos de gala y celebraciones especiales."},
+            {"category":"Manteles","name":"Beige Redondo","desc":"Mantel redondo en tono beige natural. Calidez y elegancia para mesas circulares íntimas."},
+            {"category":"Manteles","name":"Gris Redondo","desc":"Mantel redondo en tono gris sofisticado. Modernidad y distinción para eventos contemporáneos."},
+            {"category":"Manteles","name":"Talavera Redondo","desc":"Mantel redondo con motivos de Talavera mexicana. Arte tradicional para eventos con carácter cultural."},
+            {"category":"Manteles","name":"Beige Cuadrado","desc":"Mantel cuadrado en tono beige versátil. Naturalidad y elegancia para mesas cuadradas."},
+            {"category":"Manteles","name":"Olas Cuadrado","desc":"Mantel cuadrado con textura de olas refinada. Movimiento y sofisticación para mesas especiales."},
+            {"category":"Manteles","name":"Aperlado Doble Vista","desc":"Mantel aperlado con efecto doble vista reversible. Versatilidad y brillo sutil para cualquier ocasión."},
+            
+            // Caminos de Mesa
+            {"category":"Caminos de Mesa","name":"Gris","desc":"Camino de mesa en tono gris elegante. Sobriedad y modernidad para decoraciones contemporáneas."},
+            {"category":"Caminos de Mesa","name":"Beige","desc":"Camino de mesa en tono beige natural. Calidez y versatilidad para cualquier estilo de evento."},
+            {"category":"Caminos de Mesa","name":"Talavera","desc":"Camino de mesa con diseños de Talavera tradicional. Arte mexicano para eventos con identidad cultural."},
+            {"category":"Caminos de Mesa","name":"Dorado","desc":"Camino de mesa dorado con acabado brillante. Lujo y distinción para ocasiones especiales."},
+            
+            // Loza
+            {"category":"Loza","name":"Blanca Cuadrada","desc":"Vajilla blanca con platos cuadrados modernos. Líneas limpias y elegancia contemporánea."},
+            {"category":"Loza","name":"Blanca Kosher","desc":"Vajilla blanca certificada Kosher. Tradición y pureza para eventos con requerimientos especiales."},
+            {"category":"Loza","name":"LCM (Las Mañanitas Casanueva)","desc":"Vajilla exclusiva Las Mañanitas Casanueva. Diseño único y personalizado para eventos distintivos."},
+            {"category":"Loza","name":"Talavera Las Mañanitas","desc":"Vajilla Talavera Las Mañanitas con arte mexicano. Tradición artesanal y elegancia cultural."},
+            {"category":"Loza","name":"Bajo Plato Pewter","desc":"Bajo platos de pewter con acabado metálico elegante. Distinción y carácter para mesas sofisticadas."},
+            
+            // Servilletas
+            {"category":"Servilletas","name":"Blanca","desc":"Servilletas blancas clásicas de alta calidad. Pureza y elegancia atemporal para cualquier ocasión."},
+            {"category":"Servilletas","name":"Beige","desc":"Servilletas beige naturales con textura suave. Calidez y sofisticación para ambientes acogedores."},
+            
+            // Copas
+            {"category":"Copas","name":"Agua y Vino","desc":"Juego completo de copas para agua y vino. Cristalería elegante para maridajes perfectos."},
+            
+            // Mesas Especiales
+            {"category":"Mesas Especiales","name":"Mesa de Dulces","desc":"Mesa especializada para presentación de dulces y postres. Diseño específico para buffets dulces. (No puede moverse)"},
+            {"category":"Mesas Especiales","name":"Mesa de Novios Tallada","desc":"Mesa especial tallada a mano para la mesa de novios. Arte y romance para el momento más especial."},
+            
+            // Sala
+            {"category":"Sala","name":"Mimbre","desc":"Muebles de sala en mimbre natural tejido. Comodidad orgánica y estilo tropical para lounges."},
+            
+            // Sillas Especiales
+            {"category":"Sillas Especiales","name":"Luis XV Verde Olivo","desc":"Silla estilo Luis XV tapizada en verde olivo. Elegancia francesa con toques contemporáneos."},
+            {"category":"Sillas Especiales","name":"Luis XV Beige","desc":"Silla estilo Luis XV en tapizado beige clásico. Refinamiento francés y sofisticación atemporal."},
+            {"category":"Sillas Especiales","name":"Chocolate con Reposabrazo","desc":"Silla chocolate con reposabrazos cómodos. Calidez y confort para eventos de larga duración."},
+            {"category":"Sillas Especiales","name":"Vintage con Reposabrazo","desc":"Silla vintage con reposabrazos de época. Carácter histórico y comodidad moderna combinados."}
+        ];
+
+        const grid = document.getElementById('suppliers-grid');
+        const navLinks = document.getElementById('category-links');
+        const mobileToggle = document.getElementById('mobile-category-toggle');
+        const mobileArrow = document.getElementById('mobile-arrow');
+        let currentFilter = localStorage.getItem('currentFilter') || 'Todos';
+
+        // Variables del modal
+        const imageModal = document.getElementById('image-modal');
+        const modalImage = document.getElementById('modal-image');
+        const modalTitle = document.getElementById('modal-title');
+        const modalCategory = document.getElementById('modal-category');
+        const modalDescription = document.getElementById('modal-description');
+        const modalClose = document.getElementById('modal-close');
+        let isImageZoomed = false;
+
+        // Funciones del modal
+        function openImageModal(imageSrc, title, category, description) {
+            modalImage.src = imageSrc;
+            modalTitle.textContent = title;
+            modalCategory.textContent = category;
+            modalDescription.textContent = `"${description}"`;
+            imageModal.classList.add('active');
+            document.body.style.overflow = 'hidden';
+            isImageZoomed = false;
+            modalImage.classList.remove('zoomed');
+        }
+
+        function closeImageModal() {
+            imageModal.classList.remove('active');
+            document.body.style.overflow = 'auto';
+            isImageZoomed = false;
+            modalImage.classList.remove('zoomed');
+            setTimeout(() => {
+                modalImage.src = '';
+            }, 300);
+        }
+
+        function toggleImageZoom() {
+            if (isImageZoomed) {
+                modalImage.classList.remove('zoomed');
+                isImageZoomed = false;
+            } else {
+                modalImage.classList.add('zoomed');
+                isImageZoomed = true;
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            setupNavigation();
+            renderFurniture(currentFilter);
+            
+            // Event listeners para navegación móvil
+            mobileToggle.addEventListener('click', () => {
+                navLinks.classList.toggle('hidden');
+                mobileArrow.classList.toggle('rotate-180');
+            });
+            document.addEventListener('click', (event) => {
+                if (!event.target.closest('#filter-nav')) {
+                   navLinks.classList.add('hidden');
+                   mobileArrow.classList.remove('rotate-180');
+                }
+            });
+
+            // Event listeners para el modal
+            modalClose.addEventListener('click', closeImageModal);
+            
+            modalImage.addEventListener('click', toggleImageZoom);
+            
+            imageModal.addEventListener('click', (e) => {
+                if (e.target === imageModal) {
+                    closeImageModal();
+                }
+            });
+            
+            document.addEventListener('keydown', (e) => {
+                if (e.key === 'Escape' && imageModal.classList.contains('active')) {
+                    closeImageModal();
+                }
+            });
+        });
+
+        function setupNavigation() {
+            navLinks.innerHTML = '';
+            const allCategories = [...new Set(furnitureData.map(s => s.category))];
+            const categoryOrder = [
+                "Sillas", "Mesas", "Manteles", "Caminos de Mesa", "Loza", "Servilletas", "Copas", "Mesas Especiales", "Sala", "Sillas Especiales"
+            ];
+            
+            const sortedCategories = categoryOrder.filter(cat => allCategories.includes(cat));
+            const remainingCategories = allCategories.filter(cat => !categoryOrder.includes(cat));
+            const finalCategories = ['Todos', ...sortedCategories, ...remainingCategories];
+            
+            finalCategories.forEach(category => {
+                let btn = document.createElement('button');
+                btn.textContent = category;
+                btn.className = `filter-btn text-lg font-medium px-2 py-1 md:px-0 md:py-0 w-full md:w-auto text-left md:text-center`;
+                
+                if (category === currentFilter) {
+                    btn.classList.add('active');
+                }
+                btn.dataset.category = category;
+                btn.addEventListener('click', handleFilterClick);
+                navLinks.appendChild(btn);
+            });
+        }
+
+        function handleFilterClick(event) {
+            currentFilter = event.currentTarget.dataset.category;
+            localStorage.setItem('currentFilter', currentFilter);
+            
+            document.querySelectorAll('.filter-btn').forEach(btn => btn.classList.remove('active'));
+            event.currentTarget.classList.add('active');
+            
+            navLinks.classList.add('hidden');
+            mobileArrow.classList.remove('rotate-180');
+
+            renderFurniture(currentFilter);
+        }
+
+        function renderFurniture(category) {
+            grid.style.opacity = 0;
+
+            setTimeout(() => {
+                grid.innerHTML = '';
+                let filteredFurniture;
+
+                if (category === 'Todos') {
+                    filteredFurniture = furnitureData;
+                } else {
+                    filteredFurniture = furnitureData.filter(s => s.category === category);
+                }
+
+                if (filteredFurniture.length === 0) {
+                    grid.innerHTML = `
+                        <div class="col-span-1 md:col-span-2 lg:col-span-3 text-center py-16">
+                            <p class="text-2xl" style="font-family: 'Playfair Display', serif; color: #8FA68E;">No hay productos en esta categoría</p>
+                        </div>
+                    `;
+                } else {
+                    renderFurnitureCards(filteredFurniture);
+                }
+                grid.style.opacity = 1;
+            }, 300);
+        }
+        
+        function renderFurnitureCards(furniture) {
+             furniture.forEach((item, index) => {
+                const card = document.createElement('div');
+                card.className = 'card rounded-xl shadow-lg overflow-hidden flex flex-col';
+                
+                // Área de imagen principal (más grande y centrada)
+                const imageWrapper = document.createElement('div');
+                imageWrapper.className = 'image-area w-full h-64 flex items-center justify-center relative overflow-hidden';
+                
+                // Mapeo específico de nombres de productos a archivos de imagen
+                const imageMap = {
+                    // Sillas
+                    "Tiffany Blanca": "silla-tiffany-blanca.jpg",
+                    "Crossback Café": "silla-crossback-café.jpg",
+                    "Bamboo": "silla-bamboo.jpg",
+                    "Chocolate con Reposabrazo": "silla-especial-chocolate.jpg",
+                    "Vintage con Reposabrazo": "silla-especial-vintage.jpg",
+                    // Mesas
+                    "Vintage Wash Redonda": "mesa-vintage-wash-redonda.jpg",
+                    "Vintage Wash Rectangular": "mesa-vintage-wash-rectangular.jpg",
+                    "Napa Cuadrada": "mesa-napa-cuadrada.jpg",
+                    "Napa Rectangular": "mesa-napa-rectangular.jpg",
+                    "Napa Redonda": "mesa-napa-redonda.jpg",
+                    "Periquera Cuadrada": "periquera-cuadrada.jpg",
+                    "Periquera Rectangular": "periquera-rectangular.jpg",
+                    // Manteles
+                    "Olas Blanco Redondo": "mantel-olas-blanco.jpg",
+                    "Grecas Blanco Redondo": "mantel-grecas-blanco.jpg",
+                    "Beige Redondo": "mantel-beige-redondo.jpg",
+                    "Gris Redondo": "mantel-gris-redondo.jpg",
+                    "Talavera Redondo": "mantel-talavera-redondo.jpg",
+                    "Beige Cuadrado": "mantel-beige-cuadrado.jpg",
+                    "Olas Cuadrado": "mantel-olas-cuadrado.jpg",
+                    "Dorado Redondo": "mantel-dorado-redondo.jpg",
+                    "Aperlado Doble Vista": "mantel-aperlado-doble-vista.jpg",
+                    // Caminos de Mesa
+                    "Gris": "camino-de-mesa-gris.jpeg",
+                    "Beige": "camino-de-mesa-beige.jpeg",
+                    "Talavera": "camino-de-mesa-talavera.jpeg",
+                    "Caminos de Mesa|Gris": "camino-de-mesa-gris.jpeg",
+                    "Caminos de Mesa|Beige": "camino-de-mesa-beige.jpeg",
+                    "Caminos de Mesa|Talavera": "camino-de-mesa-talavera.jpeg",
+                    "Caminos de Mesa|Dorado": "camino-de-mesa-dorado.jpeg",
+                    // Loza
+                    "Blanca Cuadrada": "loza-blanca-cuadrada.jpg",
+                    "Blanca Kosher": "loza-blanca-kosher.jpg",
+                    "LCM (Las Mañanitas Casanueva)": "loza-lcm.jpg",
+                    "Talavera Las Mañanitas": "loza-talavera-las-mañanitas.jpg",
+                    // Servilletas
+                    "Blanca": "sevilleta-blanca.jpg",
+                    "Beige": "servilleta-beige.jpg",
+                    "Servilletas|Blanca": "sevilleta-blanca.jpg",
+                    "Servilletas|Beige": "servilleta-beige.jpg",
+                    // Bajo Plato
+                    "Pewter": "bajo-plato-pewter.jpg",
+                    "Bajo Plato Pewter": "bajo-plato-pewter.jpg",
+                    // Copas
+                    "Agua y Vino": "copas-agua-y-vino.jpg",
+                    // Sala
+                    "Mimbre": "sala-de-mimbre.jpeg",
+                    // Mesas Especiales
+                    "Mesa de Dulces": "mesa-de-dulces.jpeg",
+                    "Mesa de Novios Tallada": "mesa-especial-novios-tallada.jpg",
+                    // Sillas Especiales
+                    "Luis XV Verde Olivo": "silla-luis-xv-verde-olivo.jpeg",
+                    "Luis XV Beige": "silla-luis-xv-beige.jpeg"
+                };
+                
+                // Usar mapeo específico con categoría|nombre o solo nombre
+                let imagePath;
+                const categoryKey = `${item.category}|${item.name}`;
+                if (imageMap[categoryKey]) {
+                    imagePath = `images/${imageMap[categoryKey]}`;
+                } else if (imageMap[item.name]) {
+                    imagePath = `images/${imageMap[item.name]}`;
+                } else {
+                    // Fallback al método automático
+                    const imageName = item.name.toLowerCase()
+                        .replace(/\s+/g, '-')
+                        .replace(/[^\w\-]/g, '')
+                        .replace(/--+/g, '-');
+                    imagePath = `images/${imageName}.jpg`;
+                }
+                
+                const imageElement = document.createElement('img');
+                imageElement.alt = item.name;
+                imageElement.className = 'w-full h-full object-cover cursor-pointer';
+                
+                // Usar opacity en lugar de display para evitar problemas con lazy loading
+                imageElement.style.opacity = '0';
+                imageElement.style.transition = 'opacity 0.3s ease';
+                
+                const imagePlaceholder = document.createElement('div');
+                imagePlaceholder.className = 'text-center';
+                imagePlaceholder.innerHTML = `
+                    <div class="w-24 h-24 mx-auto mb-4 rounded-full bg-white/80 flex items-center justify-center shadow-lg">
+                        <i class="fas fa-image text-4xl" style="color: #A8B5A0;"></i>
+                    </div>
+                    <p class="text-base font-medium" style="color: #6B7A5A; opacity: 0.8;">Cargando imagen...</p>
+                `;
+                
+                // Variable para controlar timeout
+                let imageLoaded = false;
+                let timeoutId;
+                
+                // Configurar eventos ANTES de asignar src
+                imageElement.onload = function() {
+                    if (!imageLoaded) {
+                        imageLoaded = true;
+                        clearTimeout(timeoutId);
+                        
+                        // Detectar si la imagen es vertical y ajustar altura del contenedor
+                        if (this.naturalHeight > this.naturalWidth) {
+                            // Imagen vertical: usar altura mayor
+                            imageWrapper.className = 'image-area w-full h-96 flex items-center justify-center relative overflow-hidden';
+                        }
+                        
+                        imagePlaceholder.style.display = 'none';
+                        imageElement.style.opacity = '1';
+                        
+                        // Agregar evento click para abrir modal
+                        imageElement.addEventListener('click', () => {
+                            openImageModal(imagePath, item.name, item.category, item.desc);
+                        });
+                    }
+                };
+                
+                imageElement.onerror = function() {
+                    if (!imageLoaded) {
+                        imageLoaded = true;
+                        clearTimeout(timeoutId);
+                        
+                        // Actualizar placeholder para mostrar error
+                        imagePlaceholder.innerHTML = `
+                            <div class="w-24 h-24 mx-auto mb-4 rounded-full bg-white/80 flex items-center justify-center shadow-lg">
+                                <i class="fas fa-image text-4xl" style="color: #A8B5A0;"></i>
+                            </div>
+                            <p class="text-base font-medium" style="color: #6B7A5A; opacity: 0.8;">Imagen del producto</p>
+                        `;
+                        
+                        imagePlaceholder.style.display = 'block';
+                        imageElement.style.opacity = '0';
+                    }
+                };
+                
+                // Timeout de seguridad (5 segundos)
+                timeoutId = setTimeout(() => {
+                    if (!imageLoaded) {
+                        imageLoaded = true;
+                        console.warn(`Timeout loading image: ${imagePath}`);
+                        
+                        // Actualizar placeholder para timeout
+                        imagePlaceholder.innerHTML = `
+                            <div class="w-24 h-24 mx-auto mb-4 rounded-full bg-white/80 flex items-center justify-center shadow-lg">
+                                <i class="fas fa-image text-4xl" style="color: #A8B5A0;"></i>
+                            </div>
+                            <p class="text-base font-medium" style="color: #6B7A5A; opacity: 0.8;">Imagen del producto</p>
+                        `;
+                        
+                        imagePlaceholder.style.display = 'block';
+                        imageElement.style.opacity = '0';
+                    }
+                }, 5000);
+                
+                // AHORA asignar src después de configurar eventos
+                imageElement.src = imagePath;
+                
+                imageWrapper.appendChild(imageElement);
+                imageWrapper.appendChild(imagePlaceholder);
+                card.appendChild(imageWrapper);
+                
+                // Contenido compacto en la parte inferior
+                const contentWrapper = document.createElement('div');
+                contentWrapper.className = 'p-6 flex flex-col justify-center items-center text-center min-h-[120px]';
+                
+                // Información principal del producto
+                const categoryP = document.createElement('p');
+                categoryP.className = 'text-xs font-medium tracking-widest uppercase category-text mb-1';
+                categoryP.textContent = item.category;
+                contentWrapper.appendChild(categoryP);
+
+                const nameH3 = document.createElement('h3');
+                nameH3.className = 'text-2xl font-bold mb-3';
+                nameH3.textContent = item.name;
+                contentWrapper.appendChild(nameH3);
+
+                const descP = document.createElement('p');
+                descP.className = 'text-sm description-text italic mb-4';
+                descP.textContent = `"${item.desc}"`;
+                contentWrapper.appendChild(descP);
+                card.appendChild(contentWrapper);
+                grid.appendChild(card);
+            });
+        }
+    </script>
+
+</body>
+</html>

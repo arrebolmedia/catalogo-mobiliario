@@ -1,0 +1,48 @@
+# Archivos temporales
+*.tmp
+*.temp
+temp-*
+
+# Backups de imágenes (no necesarios en repositorio)
+images-backup/
+
+# Archivos de sistema
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Logs
+*.log
+
+# Archivos de PowerShell temporales
+*.ps1xml
+
+# Backups
+*.bak
+*.backup
+
+# Carpetas temporales
+temp/
+tmp/
+
+# Archivos ZIP de distribución (se crean automáticamente)
+Catalogo-Mobiliario-*.zip
+
+# Node modules si se agrega en el futuro
+node_modules/
+
+# Archivos del editor
+.vscode/
+.idea/
+
+# Archivos de Windows
+ehthumbs.db
+ehthumbs_vista.db
+[Dd]esktop.ini
+$RECYCLE.BIN/
+*.cab
+*.msi
+*.msix
+*.msm
+*.msp
+*.lnk
